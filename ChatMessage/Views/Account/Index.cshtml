@@ -1,0 +1,67 @@
+﻿@model ChatModel
+@inject Microsoft.AspNetCore.Identity.UserManager<User> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    ChatMessage.Models.User findUser;
+}
+<link href="~/css/site.css"/>
+<h4>Hello @user.Name</h4>
+<div class="content">
+    <div class="recievers">
+        <form asp-action="OpenChatWithUser">
+            @foreach (var item in ViewBag.Users)
+            {
+                <button class="recieversNames" type="submit" name="reciever" value="@item.Id">@item.UserName</button>
+            }
+        </form>
+    </div>
+    @if(ViewBag.ChatWithUser != null)
+            {
+
+    <div class="mix">
+        <div class="chat">
+            <h3>Chat with @UserManager.FindByIdAsync(ViewBag.RecieverId).Result.UserName</h3>
+            @foreach (var item in ViewBag.ChatWithUser)
+            {
+                @if ((findUser = UserManager.FindByIdAsync(item.UserId).Result)
+                   == UserManager.GetUserAsync(User).Result)
+                {
+                    <div class="sender">
+                        <h6 class="senders">@item.Message</h6>
+                        <h6 class="sendersDate">@item.DateOfSendingMessage</h6>
+                    </div>
+                }
+                else
+                {
+                    <div class="recipient">
+                        <h6 class="recipients">@item.Message</h6>
+                        <h6 class="recipientsDate">@item.DateOfSendingMessage</h6>
+                    </div>
+                }
+            }
+        </div>
+        <div class="sendbox">
+            <form class="sendbox" asp-controller="Account" asp-action="SendMessage">
+                <div class="send-message-box">
+                    <input asp-for="UserId" value="@user.Id" hidden />
+                    <input asp-for="ReceiverId" value="@ViewBag.RecieverId" hidden />
+                    <div class="message">
+                        <label asp-for="Message"></label>
+                        <input asp-for="Message" class="form-controller" />
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Topic"></label>
+                        <input asp-for="Topic" class="form-controller" />
+                        <span asp-validation-for="Topic" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="send-button-div" style="place-content: center">
+                    <button type="submit" class="form-controller">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+            }
+</div>
+
